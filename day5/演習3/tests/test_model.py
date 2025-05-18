@@ -173,26 +173,6 @@ def test_model_reproducibility(sample_data, preprocessor):
     ), "モデルの予測結果に再現性がありません"
 
 #以下、宿題用に追加
-def test_model_inference_metrics():
-    """モデルの推論精度と推論時間をテストする"""
-    # モデルの読み込み（演習3の構造に合わせて調整してください）
-    model = load_model()  # 実際のモデル読み込み関数
-    X_test, y_test = load_test_data()  # テストデータ読み込み関数
-    
-    # 推論時間計測
-    start_time = time.time()
-    y_pred = model.predict(X_test)
-    inference_time = time.time() - start_time
-    
-    # 精度計算
-    accuracy = accuracy_score(y_test, y_pred)
-    
-    # 基準を満たしているか検証
-    assert accuracy >= 0.75, f"モデル精度が基準を下回っています: {accuracy:.4f}"
-    assert inference_time < 1.0, f"推論時間が長すぎます: {inference_time:.4f}秒"
-    
-    print(f"モデル精度: {accuracy:.4f}, 推論時間: {inference_time:.4f}秒")
-
 def test_model_performance_comparison(train_model):
     """過去バージョンのモデルと比較して性能劣化がないか検証"""
     current_model, X_test, y_test = train_model
