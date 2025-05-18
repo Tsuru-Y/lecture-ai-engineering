@@ -179,35 +179,40 @@ def test_model_reproducibility(sample_data, preprocessor):
 def test_model_performance_comparison(train_model):
     """過去バージョンのモデルと比較して性能劣化がないか検証"""
     current_model, X_test, y_test = train_model
-    
+
     # 過去のモデルのパス
     previous_model_path = os.path.join(MODEL_DIR, "titanic_model_previous.pkl")
-    
+
     # 現在のモデルの精度を測定
     current_pred = current_model.predict(X_test)
     current_accuracy = accuracy_score(y_test, current_pred)
-    
+
     # 過去のモデルが存在しない場合は、現在のモデルを保存してテストをスキップ
     if not os.path.exists(previous_model_path):
         # 現在のモデルを過去モデルとして保存
         with open(previous_model_path, "wb") as f:
             pickle.dump(current_model, f)
-        pytest.skip("過去モデルが存在しないため、現在のモデルをコピーしました。次回テスト時に比較します。")
-    
+        pytest.skip(
+            "過去モデルが存在しないため、現在のモデルをコピーしました。次回テスト時に比較します。"
+        )
+
     # 過去のモデルをロード
     with open(previous_model_path, "rb") as f:
         previous_model = pickle.load(f)
-    
+
     # 過去のモデルの精度を測定
     previous_pred = previous_model.predict(X_test)
     previous_accuracy = accuracy_score(y_test, previous_pred)
-    
+
     # 精度比較（現在のモデルが過去のモデルより1%以上悪化していないことを確認）
-    assert current_accuracy >= previous_accuracy - 0.01, \
-        f"モデル性能が低下しています: 現在={current_accuracy:.4f}, 過去={previous_accuracy:.4f}"
-    
-    print(f"モデル性能比較: 現在={current_accuracy:.4f}, 過去={previous_accuracy:.4f}, 差={current_accuracy-previous_accuracy:.4f}")
-    
+    assert (
+        current_accuracy >= previous_accuracy - 0.01
+    ), f"モデル性能が低下しています: 現在={current_accuracy:.4f}, 過去={previous_accuracy:.4f}"
+
+    print(
+        f"モデル性能比較: 現在={current_accuracy:.4f}, 過去={previous_accuracy:.4f}, 差={current_accuracy-previous_accuracy:.4f}"
+    )
+
     # テスト後に現在のモデルを過去モデルとして保存（次回の比較用）
     with open(previous_model_path, "wb") as f:
         pickle.dump(current_model, f)
