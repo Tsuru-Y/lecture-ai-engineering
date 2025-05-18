@@ -172,7 +172,10 @@ def test_model_reproducibility(sample_data, preprocessor):
         predictions1, predictions2
     ), "モデルの予測結果に再現性がありません"
 
-#以下、宿題用に追加
+
+# 以下、宿題用に追加
+
+
 def test_model_performance_comparison(train_model):
     """過去バージョンのモデルと比較して性能劣化がないか検証"""
     current_model, X_test, y_test = train_model
