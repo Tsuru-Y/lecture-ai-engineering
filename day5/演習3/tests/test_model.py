@@ -171,3 +171,63 @@ def test_model_reproducibility(sample_data, preprocessor):
     assert np.array_equal(
         predictions1, predictions2
     ), "モデルの予測結果に再現性がありません"
+
+#以下、宿題用に追加
+def test_model_inference_metrics():
+    """モデルの推論精度と推論時間をテストする"""
+    # モデルの読み込み（演習3の構造に合わせて調整してください）
+    model = load_model()  # 実際のモデル読み込み関数
+    X_test, y_test = load_test_data()  # テストデータ読み込み関数
+    
+    # 推論時間計測
+    start_time = time.time()
+    y_pred = model.predict(X_test)
+    inference_time = time.time() - start_time
+    
+    # 精度計算
+    accuracy = accuracy_score(y_test, y_pred)
+    
+    # 基準を満たしているか検証
+    assert accuracy >= 0.75, f"モデル精度が基準を下回っています: {accuracy:.4f}"
+    assert inference_time < 1.0, f"推論時間が長すぎます: {inference_time:.4f}秒"
+    
+    print(f"モデル精度: {accuracy:.4f}, 推論時間: {inference_time:.4f}秒")
+
+def test_model_performance_comparison():
+    """過去バージョンのモデルと比較して性能劣化がないか検証"""
+    # 現在のモデルと過去のモデルの読み込み
+    current_model = load_model()  # 現在のモデル
+    X_test, y_test = load_test_data()
+    
+    # 過去モデルのパス
+    previous_model_path = "models/previous_model.pkl"
+    
+    # テスト環境の初回実行時は比較対象がないので現在のモデルを保存してスキップ
+    if not os.path.exists(previous_model_path):
+        os.makedirs("models", exist_ok=True)
+        # モデルを保存（実際の保存関数に置き換えてください）
+        save_model(current_model, "models/previous_model.pkl") 
+        pytest.skip("過去モデルが存在しないため、テストをスキップします")
+    
+    # 過去モデルの読み込み
+    try:
+        with open(previous_model_path, 'rb') as f:
+            previous_model = pickle.load(f)
+    except:
+        pytest.skip("過去モデルの読み込みに失敗しました")
+    
+    # 両方のモデルの性能を評価
+    current_pred = current_model.predict(X_test)
+    previous_pred = previous_model.predict(X_test)
+    
+    current_acc = accuracy_score(y_test, current_pred)
+    previous_acc = accuracy_score(y_test, previous_pred)
+    
+    # 精度の比較（1%以上低下していないことを確認）
+    assert current_acc >= previous_acc - 0.01, \
+        f"モデル性能が低下しています: 現在={current_acc:.4f}, 過去={previous_acc:.4f}"
+    
+    print(f"モデル性能比較: 現在={current_acc:.4f}, 過去={previous_acc:.4f}, 差分={current_acc-previous_acc:.4f}")
+    
+    # テスト終了後に現在のモデルを保存（次回の比較用）
+    save_model(current_model, "models/previous_model.pkl")
